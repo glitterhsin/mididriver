@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.EditText;
 
 public class MainActivity extends Activity
     implements OnTouchListener, OnClickListener,
@@ -39,7 +40,8 @@ public class MainActivity extends Activity
 
     protected MidiDriver midi;
     protected MediaPlayer player;
-
+    EditText edittext1 = (EditText)findViewById(R.id.editText1);
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -68,6 +70,10 @@ public class MainActivity extends Activity
 	if (v != null)
 	    v.setOnClickListener(this);
 
+	v = findViewById(R.id.button5);
+	if (v != null)
+	    v.setOnClickListener(this);
+	
 	// Set on midi start listener
 
 	if (midi != null)
@@ -120,7 +126,7 @@ public class MainActivity extends Activity
     {
 	int action = event.getAction();
 	int id = v.getId();
-
+	int number = getMidiNumber();
 	switch (action)
 	{
 	    // Down
@@ -129,15 +135,11 @@ public class MainActivity extends Activity
 	    switch (id)
 	    {
 	    case R.id.button1:
-		sendMidi(0x90, 48, 63);
-		sendMidi(0x90, 52, 63);
-		sendMidi(0x90, 55, 63);
+	    sendMidi(0x90, 79, 63);
 		break;
 
 	    case R.id.button2:
-		sendMidi(0x90, 55, 63);
-		sendMidi(0x90, 59, 63);
-		sendMidi(0x90, 62, 63);
+	    sendMidi(0x90, number, 63);
 		break;
 
 	    default:
@@ -151,15 +153,11 @@ public class MainActivity extends Activity
 	    switch (id)
 	    {
 	    case R.id.button1:
-		sendMidi(0x80, 48, 0);
-		sendMidi(0x80, 52, 0);
-		sendMidi(0x80, 55, 0);
+	    sendMidi(0x80, 79, 0);
 		break;
 
 	    case R.id.button2:
-		sendMidi(0x80, 55, 0);
-		sendMidi(0x80, 59, 0);
-		sendMidi(0x80, 62, 0);
+		sendMidi(0x80, number, 0);
 		break;
 
 	    default:
@@ -180,7 +178,8 @@ public class MainActivity extends Activity
     public void onClick(View v)
     {
 	int id = v.getId();
-
+	int number = getMidiNumber();
+	
 	switch (id)
 	{
 	case R.id.button3:
@@ -198,6 +197,25 @@ public class MainActivity extends Activity
 	    if (player != null)
 		player.stop();
 	    break;
+	    
+	case R.id.button5:
+		sendMidi(0x90, number, 63);
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sendMidi(0x80, number, 63);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sendMidi(0x90, number, 63);
+		sendMidi(0x80, number, 63);
+	    break;
 	}
     }
 
@@ -209,7 +227,8 @@ public class MainActivity extends Activity
     {
 	// Program change - harpsicord
 
-	sendMidi(0xc0, 6);
+	//sendMidi(0xc0, 6);
+	sendMidi(0xc0, 80); //
     }
 
     // Send a midi message
@@ -235,5 +254,13 @@ public class MainActivity extends Activity
 	msg[2] = (byte) v;
 
 	midi.queueEvent(msg);
+    }
+    
+    protected int getMidiNumber()
+    {
+    	double freq = Double.valueOf(edittext1.getText().toString());
+    	int midi_number;
+    	midi_number = 12*(int)(Math.round(Math.log(freq/440.0)/Math.log(2)))+69;
+    	return midi_number;
     }
 }
