@@ -40,7 +40,7 @@ public class MainActivity extends Activity
 
     protected MidiDriver midi;
     protected MediaPlayer player;
-    EditText edittext1 = (EditText)findViewById(R.id.editText1);
+    private editText;
     
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -258,6 +258,7 @@ public class MainActivity extends Activity
     
     protected int getMidiNumber()
     {
+    	edittext1 = (EditText)findViewById(R.id.editText1);
     	double freq = Double.valueOf(edittext1.getText().toString());
     	int midi_number;
     	midi_number = 12*(int)(Math.round(Math.log(freq/440.0)/Math.log(2)))+69;
